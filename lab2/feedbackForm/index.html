@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Feedback Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <h2>Форма обратной связи</h2>
+      <form
+        action="https://httpbin.org/post"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <div>
+          <label for="name">Имя (ФИО):</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div>
+          <label>Откуда вы узнали о нас:</label><br />
+          <input type="radio" id="friends" name="referral" value="friends" />
+          <label for="friends">Друзья</label>
+          <input type="radio" id="adv" name="referral" value="adv" />
+          <label for="adv">Реклама</label>
+          <input type="radio" id="others" name="referral" value="others" />
+          <label for="others">Другое</label>
+        </div>
+        <div>
+          <label>Тип обращения:</label>
+          <select name="mesType">
+            <option value="complaint">Жалоба</option>
+            <option value="suggestion">Предложение</option>
+          </select>
+        </div>
+        <div>
+          <label for="message">Сообщение:</label><br />
+          <textarea id="message" name="message" rows="4" required></textarea>
+        </div>
+        <div>
+          <label for="attachments">Вложения:</label>
+          <input type="file" id="attachments" name="attachments" />
+        </div>
+        <div>
+          <input type="checkbox" id="agree" name="agree" />
+          <label for="agree">
+            Даю согласие на обработку персональных данных
+          </label>
+        </div>
+        <div>
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
