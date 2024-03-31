@@ -70,7 +70,8 @@ def logout():
 @app.route('/secret')
 @login_required
 def secret():
-    if not current_user.is_authenticated:
-        flash('You are not authorized', 'warning')
-        return redirect(url_for('index'))
     return render_template('secret.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5002)

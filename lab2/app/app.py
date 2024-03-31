@@ -46,6 +46,8 @@ def phone():
 
     if not phone_number.isdigit():
         errors.append('В номере телефона встречаются недопустимые символы.')
+
+    phone_number = ''.join([char for char in phone_number if char.isdigit()])
     if len(phone_number) not in [10, 11]:
         errors.append('Неверное количество цифр.')
 
@@ -56,3 +58,5 @@ def phone():
 
     return render_template('phone.html', phone_number=formatted_phone_number, errors=errors)
 
+if __name__ == '__main__':
+    app.run(debug=True)
