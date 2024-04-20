@@ -1,14 +1,32 @@
 
-{% macro user_form(roles, action, user_data={}) %}
+{% macro user_form(roles, action, user_data={}, errors={}) %}
 <form method="post">
     {% if action == 'new' %}
     <div class="mb-3">
         <label for="login" class="form-label">Логин</label>
-        <input type="text" name="login" id="login" class="form-control" value="{{ user_data.login or '' }}">
+        <input type="text" name="login" id="login" class="form-control {% if errors.get('login') %}is-invalid{% endif %}" value="{{ user_data.login or '' }}">
+        {% if errors.get('login') %}
+            <div class="invalid-feedback">
+                <ul>
+                    {% for error in errors['login'] %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
     <div class="mb-3">
         <label for="password" class="form-label">Пароль</label>
-        <input type="password" name="password" id="password" class="form-control" value="{{ user_data.password or '' }}">
+        <input type="password" name="password" id="password" class="form-control {% if errors.get('password') %}is-invalid{% endif %}" value="{{ user_data.password or '' }}">
+        {% if errors.get('password') %}
+            <div class="invalid-feedback">
+                <ul>
+                    {% for error in errors['password'] %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
     {% endif %}
     <div class="mb-3">
@@ -27,7 +45,7 @@
         <label for="role_id" class="form-label">Роль</label>
         <select name="role_id" id="role_id" class="form-select">
             {% for role in roles %}
-                <option value="{{ role.id }}" {% if role.id | string == user_data.role_id %} selected {% endif %}> {{ role.name }}</option>
+                <option value="{{ role.id }}" {% if role.id | string == user_data.role_id | string %} selected {% endif %}> {{ role.name }}</option>
             {% endfor %}
         </select>
     </div>

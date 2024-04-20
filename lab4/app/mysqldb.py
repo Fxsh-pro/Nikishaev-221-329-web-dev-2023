@@ -1,24 +1,6 @@
 from flask import current_app, g
 import mysql.connector
 
-# create table if not exists roles ( TODO create tables first
-#     id int primary key auto_increment,
-#     name varchar(100) not null,
-#     description text
-# ) engine innodb;
-#
-# create table if not exists users (
-#     id int primary key auto_increment,
-#     login varchar(100) not null unique,
-#     password_hash varchar(64) not null,
-#     last_name varchar(64) not null,
-#     first_name varchar(64) not null,
-#     middle_name varchar(64),
-#     created_at timestamp not null default current_timestamp,
-#     role_id int,
-#     foreign key (role_id) references roles(id)
-# ) engine innodb;
-
 class DBConnector:
     def __init__(self, app):
         self.app = app
