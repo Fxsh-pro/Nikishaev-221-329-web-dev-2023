@@ -1,6 +1,8 @@
+from functools import wraps
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
-from functools import wraps
+
 from app import db_connector, db_operation
 from users_policy import UsersPolicy
 
@@ -39,7 +41,6 @@ def load_user(user_id):
     return None
 
 
-
 def check_for_privelege(action):
     def decorator(function):
         @wraps(function)
@@ -49,7 +50,7 @@ def check_for_privelege(action):
                 with db_connector.connect().cursor(named_tuple=True) as cursor:
                     cursor.execute("SELECT * FROM users WHERE id = %s;", (kwargs.get('user_id'),))
                     user = cursor.fetchone()
-            if not current_user.can(action, user):
+            if not (current_user.is_authenticated and current_user.can(action, user)):
                 flash('Недостаточно прав для доступа к этой странице', 'warning')
                 return redirect(url_for('users.index'))
             return function(*args, **kwargs)
@@ -68,7 +69,7 @@ def auth(cursor):
         password = request.form['password']
         remember_me = request.form.get('remember_me', None) == 'on'
         cursor.execute("SELECT id, login, role_id FROM users WHERE login = %s AND password_hash = SHA2(%s, 256)",
-                           (login, password))
+                       (login, password))
         user = cursor.fetchone()
 
         if user is not None:
