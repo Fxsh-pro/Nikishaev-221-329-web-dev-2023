@@ -18,3 +18,6 @@ class UsersPolicy:
 
     def assign_role(self):
         return current_user.is_admin()
+
+    def read_statistics(self):
+        return current_user.is_admin()

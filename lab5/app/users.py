@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app import db_connector, db_operation
-from flask_login import login_required, current_user
-from auto import check_for_privelege
 import mysql.connector as connector
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required, current_user
+
+from app import db_connector, db_operation
+from auto import check_for_privelege
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 

@@ -1,5 +1,6 @@
-from flask import current_app, g
 import mysql.connector
+from flask import g
+
 
 class DBConnector:
     def __init__(self, app):
