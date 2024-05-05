@@ -1,9 +1,10 @@
 import datetime
-from flask import Flask, render_template, session, redirect, url_for, flash, request
-from flask_login import current_user, login_required
 from functools import wraps
+
+from flask import Flask, render_template, session, request
+from flask_login import current_user, login_required
+
 from mysqldb import DBConnector
-import mysql.connector as connector
 
 app = Flask(__name__)
 application = app
@@ -74,4 +75,3 @@ def secret():
 def counter():
     session['counter'] = session.get('counter', 0) + 1
     return render_template('counter.html')
-
