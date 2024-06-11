@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% from 'pagination.html' import pagination %}
+
+{% block content %}
+<div class="container">
+    <div class="my-5">
+        <h2 class="mb-3 text-center text-uppercase font-weight-bold">Каталог книг</h2>
+
+        <!-- Search form -->
+        <form class="mb-5 mt-3 row align-items-center">
+            <!-- Add your search form inputs here -->
+        </form>
+    </div>
+
+    <!-- Book list -->
+    <div class="books-list container-fluid mt-3 mb-3">
+        {% for book in books %}
+            <div class="row p-3 border rounded mb-3">
+                <!-- Book image -->
+                <div class="col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center">
+                    <div class="book-cover">
+                        {% if book.background_image %}
+                            <img src="data:image/jpeg;base64,{{ book.background_image|b64encode }}" alt="{{ book.title }} Cover Image" class="img-fluid">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Placeholder Image" class="img-fluid">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Book details -->
+                <div class="col-md-9 align-items-center">
+                    <div class="d-flex">
+                        <h4 class="text-uppercase">{{ book.title }}</h4>
+                    </div>
+                    <p class="text-muted my-3">{{ book.author }}</p>
+                    <p>Жарны: {{ book.genres }}</p>
+                    <p>Year: {{ book.year }}</p>
+                    <p>Average Rating: {{ book.avg_rating|default('No ratings', true) }}</p>
+                    <p>Number of Reviews: {{ book.review_count }}</p>
+                    <p>{{ book.description | truncate(200) }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mb-5">
+        {{ pagination(request.endpoint, page, page_count, pages) }}
+    </div>
+
+    <!-- Create book button (if user is authenticated) -->
+    {% if current_user.is_authenticated %}
+        <div class="text-center my-3">
+            <a class="btn btn-lg btn-dark" href="{{ url_for('books.create') }}">Создать книгу</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{#{% extends 'base.html' %}#}
+{#{% from 'pagination.html' import pagination %}#}
+{##}
+{##}
+{#{% block content %}#}
+{#    <div class="container">#}
+{#        <div class="my-5">#}
+{#            <h2 class="mb-3 text-center text-uppercase font-weight-bold">Каталог книг</h2>#}
+{##}
+{#            <!-- Search form -->#}
+{#            <form class="mb-5 mt-3 row align-items-center">#}
+{#                <!-- Add your search form inputs here -->#}
+{#            </form>#}
+{#        </div>#}
+{##}
+{#        <!-- Book list -->#}
+{#        <div class="books-list container-fluid mt-3 mb-3">#}
+{#            {% for book in books %}#}
+{#                <div class="row p-3 border rounded mb-3">#}
+{#                    <!-- Book image -->#}
+{#                    <div class="col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center">#}
+{#                        <div class="book-cover">#}
+                            {#                            {{ book.background_image }}#}
+                            {#                            {% if book.background_image %}#}
+                            {#                                <img src="{{ book.cover_image }}" alt="{{ book.title }} Cover Image">#}
+{#                            <img src="data:image/jpeg;base64,{{ book.background_image|b64encode }}" alt="Uploaded Image"#}
+{#                                 class="img-fluid">#}
+                            {#                            {% else %}#}
+                            {#                                <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Placeholder Image">#}
+                            {#                            {% endif %}#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <!-- Book details -->#}
+{#                    <div class="col-md-9 align-items-center">#}
+{#                        <div class="d-flex">#}
+{#                            <h4 class="text-uppercase">{{ book.title }}</h4>#}
+{#                            <!-- Add additional details like author, rating, etc. -->#}
+{#                        </div>#}
+{#                        <p class="text-muted my-3">{{ book.author }}</p>#}
+{#                        <p>{{ book.description | truncate(200) }}</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{##}
+{#        <!-- Pagination -->#}
+{#        <div class="mb-5">#}
+{#            {{ pagination(request.endpoint, page, page_count, pages) }}#}
+{#        </div>#}
+{##}
+{#        <!-- Create book button (if user is authenticated) -->#}
+{#        {% if current_user.is_authenticated %}#}
+{#            <div class="text-center my-3">#}
+{#                <a class="btn btn-lg btn-dark" href="{{ url_for('books.create') }}">Создать книгу</a>#}
+{#            </div>#}
+{#        {% endif %}#}
+{#    </div>#}
+{#{% endblock %}#}
