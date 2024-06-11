@@ -16,10 +16,10 @@ bp = Blueprint('testing', __name__, url_prefix='/testing')
 MAX_PER_PAGE = 7
 
 s3_client = S3Client(
-        access_key="YCAJEy9QLKnVTXGqdO6xlh_44",
-        secret_key="YCOnxag0SsrhXf96gp9ap6vQSoPIG6QilKQ7zU0b",
-        endpoint_url="https://storage.yandexcloud.net",
-        bucket_name="mnikishaev",
+        access_key="----",
+        secret_key="nonono",
+        endpoint_url="NONONO",
+        bucket_name="NONONO",
 )
 
 @bp.route('/')

@@ -11,7 +11,7 @@ class UsersPolicy:
         return True
 
     def update(self):
-        return current_user.is_admin() or current_user.id == self.user.id
+        return current_user.is_admin() or current_user.is_supervisor()
 
     def delete(self):
         return current_user.is_admin()

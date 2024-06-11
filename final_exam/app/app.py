@@ -14,9 +14,7 @@ app.config.from_pyfile('config.py')
 db_connector = DBConnector(app)
 
 def b64encode(data):
-    print("start decoded")
     if data:
-        print("decoded")
         return base64.b64encode(data).decode('utf-8')
 
 app.jinja_env.filters['b64encode'] = b64encode

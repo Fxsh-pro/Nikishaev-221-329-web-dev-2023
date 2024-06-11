@@ -9,3 +9,4 @@ MYSQL_HOST = 'rc1b-2xmunoaqhipsaggs.mdb.yandexcloud.net'
 MYSQL_DATABASE = 'exam'
 
 ADMIN_ROLE_ID = 1
+SUPERVISOR_ROLE_ID = 2

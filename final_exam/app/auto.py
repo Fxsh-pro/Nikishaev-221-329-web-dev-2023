@@ -13,7 +13,7 @@ def init_login_manager(app):
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auto.auth'
-    login_manager.login_message = 'Авторизуйтесь для доступа к этому ресурсу'
+    login_manager.login_message = 'Для выполнения данного действия необходимо пройти процедуру аутентификации'
     login_manager.login_message_category = 'warning'
     login_manager.user_loader(load_user)
 
@@ -26,6 +26,8 @@ class User(UserMixin):
 
     def is_admin(self):
         return self.role_id == current_app.config['ADMIN_ROLE_ID']
+    def is_supervisor(self):
+        return self.role_id == current_app.config['SUPERVISOR_ROLE_ID']
 
     def can(self, action, user=None):
         policy = UsersPolicy(user)
@@ -45,14 +47,9 @@ def check_for_privelege(action):
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
-            user = None
-            if 'user_id' in kwargs.keys():
-                with db_connector.connect().cursor(named_tuple=True) as cursor:
-                    cursor.execute("SELECT * FROM users WHERE id = %s;", (kwargs.get('user_id'),))
-                    user = cursor.fetchone()
-            if not (current_user.is_authenticated and current_user.can(action, user)):
+            if not (current_user.is_authenticated and current_user.can(action)):
                 flash('Недостаточно прав для доступа к этой странице', 'warning')
-                return redirect(url_for('users.index'))
+                return redirect(url_for('books.index'))
             return function(*args, **kwargs)
 
         return wrapper
