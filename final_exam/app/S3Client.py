@@ -32,7 +32,7 @@ class S3Client:
             self,
             file_path: str,
     ):
-        object_name = file_path.split("/")[-1]  # /users/artem/cat.jpg
+        object_name = file_path.split("/")[-1]
         try:
             async with self.get_client() as client:
                 with open(file_path, "rb") as file:
@@ -41,7 +41,6 @@ class S3Client:
                         Key=object_name,
                         Body=file,
                     )
-                print(f"File {object_name} uploaded to {self.bucket_name}")
         except ClientError as e:
             print(f"Error uploading file: {e}")
 
@@ -56,16 +55,13 @@ class S3Client:
                     Body=file_bytes,
                 )
                 print(f"File {filename} uploaded to {self.bucket_name}")
-        except ClientError as e:
-            print(f"Error uploading file: {e}")
         except Exception as e:
-            print(f"Error uploading file v2: {e}")
+            print(f"Error uploading file: {e}")
 
     async def delete_file(self, object_name: str):
         try:
             async with self.get_client() as client:
                 await client.delete_object(Bucket=self.bucket_name, Key=object_name)
-                print(f"File {object_name} deleted from {self.bucket_name}")
         except ClientError as e:
             print(f"Error deleting file: {e}")
 
@@ -75,6 +71,5 @@ class S3Client:
                 response = await client.get_object(Bucket=self.bucket_name, Key=object_name)
                 data = await response["Body"].read()
                 return data
-                # return data.decode()
         except ClientError as e:
             print(f"Error downloading file: {e}")

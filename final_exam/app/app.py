@@ -1,11 +1,10 @@
+import base64
 import datetime
 from functools import wraps
 
-from flask import Flask, render_template, session, request
-from flask_login import current_user, login_required
+from flask import Flask, render_template
 
 from mysqldb import DBConnector
-import base64
 
 app = Flask(__name__)
 application = app
@@ -13,11 +12,14 @@ app.config.from_pyfile('config.py')
 
 db_connector = DBConnector(app)
 
+
 def b64encode(data):
     if data:
         return base64.b64encode(data).decode('utf-8')
 
+
 app.jinja_env.filters['b64encode'] = b64encode
+
 
 def db_operation(func):
     @wraps(func)
@@ -46,13 +48,6 @@ from auto import bp as auto_bp, init_login_manager
 app.register_blueprint(auto_bp)
 init_login_manager(app)
 
-from users import bp as users_bp
-
-app.register_blueprint(users_bp)
-
-from tests import bp as tests_bp
-
-app.register_blueprint(tests_bp)
 
 from books import bp as books_bp
 
