@@ -5,7 +5,7 @@ import math
 import os
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from flask_login import login_required
+from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
 from S3Client import S3Client
@@ -14,7 +14,7 @@ from auto import check_for_privelege
 
 bp = Blueprint('books', __name__, url_prefix='/books')
 
-MAX_PER_PAGE = 10
+MAX_PER_PAGE = 2
 
 s3_client = S3Client(
     access_key=os.getenv("S3_ACCESS_KEY"),
@@ -31,7 +31,7 @@ def get_books_with_pagination(offset, cursor):
     cursor.execute("""
                 SELECT b.*, bc.file_name, 
                        GROUP_CONCAT(g.name SEPARATOR ', ') as genres, 
-                       AVG(r.rating) as avg_rating, 
+                       ROUND(AVG(r.rating), 1) as avg_rating, 
                        COUNT(r.id) as review_count
                 FROM books b
                 LEFT JOIN book_covers bc ON b.cover_id = bc.id
@@ -59,7 +59,7 @@ def handle_book_cover(background_image, cursor):
         cover_id = cursor.lastrowid
 
         background_image.stream.seek(0)
-        s3_client.upload_file_v2(background_image.stream, filename)
+        asyncio.run(s3_client.upload_file_v2(background_image.stream, filename))
 
         return cover_id
     return None
@@ -180,17 +180,21 @@ def update(cursor, book_id):
 @login_required
 def view(cursor, book_id):
     cursor.execute("""
-        SELECT b.*, bc.file_name, 
-               GROUP_CONCAT(g.name SEPARATOR ', ') as genres, 
-               AVG(r.rating) as avg_rating, 
-               COUNT(r.id) as review_count
-        FROM books b
-        LEFT JOIN book_covers bc ON b.cover_id = bc.id
-        LEFT JOIN book_genres bg ON b.id = bg.book_id
-        LEFT JOIN genres g ON bg.genre_id = g.id
-        LEFT JOIN reviews r ON b.id = r.book_id
+        SELECT b.*, 
+               bc.file_name, 
+               (SELECT GROUP_CONCAT(g.name SEPARATOR ', ') 
+                FROM book_genres bg 
+                JOIN genres g ON bg.genre_id = g.id 
+                WHERE bg.book_id = b.id) AS genres, 
+               (SELECT ROUND(AVG(r.rating), 1) 
+                FROM reviews r 
+                WHERE r.book_id = b.id) AS avg_rating, 
+               (SELECT COUNT(r.id) 
+                FROM reviews r 
+                WHERE r.book_id = b.id) AS review_count 
+        FROM books b 
+        LEFT JOIN book_covers bc ON b.cover_id = bc.id 
         WHERE b.id = %s
-        GROUP BY b.id
     """, (book_id,))
     book = cursor.fetchone()
 
@@ -206,7 +210,18 @@ def view(cursor, book_id):
         if file_data:
             book_dict['background_image'] = file_data
 
-    return render_template('books/view.html', book=book_dict)
+    cursor.execute("SELECT rating, text, created_at, "
+                   "CONCAT(first_name, "
+                   "IF(middle_name IS NOT NULL, CONCAT(' ', middle_name), ''), ' ', last_name) AS full_name "
+                   "FROM reviews "
+                   "LEFT JOIN users on reviews.user_id = users.id "
+                   "WHERE reviews.book_id = %s", (book_id,))
+    reviews = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM reviews WHERE user_id = %s and book_id = %s", (current_user.id, book_id))
+    is_commented = cursor.fetchone() is not None
+
+    return render_template('books/view.html', book=book_dict, reviews=reviews, is_commented=is_commented)
 
 
 @bp.route('/delete/<int:book_id>', methods=['POST'])
@@ -227,3 +242,30 @@ def delete(cursor, book_id):
 
     flash("Book deleted successfully!", "success")
     return redirect(url_for('books.index'))
+
+
+@bp.route('/add_review/<int:book_id>', methods=['POST', 'GET'])
+@login_required
+@db_operation
+def add_review(cursor, book_id):
+    if request.method == 'POST':
+        cursor.execute("SELECT id FROM reviews WHERE book_id = %s AND user_id = %s", (book_id, current_user.id))
+        existing_review = cursor.fetchone()
+
+        if existing_review:
+            flash("Вы уже оставили отзыв об этой книге.", "warning")
+        else:
+            rating = request.form['rating']
+            text = request.form['r_text']
+            try:
+                cursor.execute("""
+                    INSERT INTO reviews(book_id, user_id, rating, text) VALUES (%s, %s, %s, %s)
+                    """, (book_id, current_user.id, rating, text)
+                )
+                flash('Отзыв успешно добавлен!', 'success')
+            except Exception as e:
+                flash("Произошла ошибка при написании отзыва.", "danger")
+
+        return redirect(url_for('books.view', book_id=book_id))
+
+    return render_template("books/review.html", book_id=book_id)

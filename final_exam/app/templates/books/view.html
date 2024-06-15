@@ -1,23 +1,78 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container">
-        <h1>Просмотр книги</h1>
-        <div>
-            <h3>{{ book.title }}</h3>
-            <p><strong>Автор:</strong> {{ book.author }}</p>
-            <p><strong>Описание:</strong> {{ book.description }}</p>
-            <p><strong>Жанры:</strong> {{ book.genres }}</p>
-            <p><strong>Год:</strong> {{ book.year }}</p>
-            <p><strong>Издатель:</strong> {{ book.publisher }}</p>
-            <p><strong>Количество страниц:</strong> {{ book.pages }}</p>
-            <p><strong>Средний рейтинг:</strong> {{ book.avg_rating }}</p>
-            <p><strong>Количество рецензий:</strong> {{ book.review_count }}</p>
-            {% if book.background_image %}
-                <img src="data:image/jpeg;base64,{{ book.background_image|b64encode }}" alt="Cover Image">
-            {% else %}
-                <p>No cover image available</p>
-            {% endif %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="mb-4 text-center">Просмотр книги</h1>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ book.title }}</h3>
+                        <p class="card-text"><strong>Автор:</strong> {{ book.author }}</p>
+                        <p class="card-text"><strong>Описание:</strong> {{ book.description }}</p>
+                        <p class="card-text"><strong>Жанры:</strong> {{ book.genres }}</p>
+                        <p class="card-text"><strong>Год:</strong> {{ book.year }}</p>
+                        <p class="card-text"><strong>Издатель:</strong> {{ book.publisher }}</p>
+                        <p class="card-text"><strong>Количество страниц:</strong> {{ book.pages }}</p>
+                        <p class="card-text"><strong>Средний рейтинг:</strong> {{ book.avg_rating }}</p>
+                        <p class="card-text"><strong>Количество отзывовов:</strong> {{ book.review_count }}</p>
+                        {% if book.background_image %}
+                            <div class="d-flex justify-content-center">
+                                <img src="data:image/jpeg;base64,{{ book.background_image|b64encode }}"
+                                     class="img-fluid rounded shadow-sm mt-3" alt="Cover Image">
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No cover image available</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Comments Block -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title">Отзывы ({{ book.review_count }}):</h4>
+                        {% if reviews %}
+                            <ul class="list-group list-group-flush">
+                                {% set rating_mapping = {1: 'плохо', 2: 'неудовлетворительно', 3: 'удовлетворительно', 4: 'хорошо', 5: 'отлично'} %}
+                                {% for review in reviews %}
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <img src="{{ url_for('static', filename='images/avatar.jpeg') }}"
+                                                 class="rounded-circle me-3"
+                                                 style="height: 55px; width: 55px;  border: 1.5px solid black;">
+                                            <div>
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <p class="user mb-0 me-2">{{ review.full_name }}</p>
+                                                    <p class="commentPostTime mb-0 text-muted">{{ review.date_added }}</p>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <p class="me-2 mb-0"><strong>Оценка:</strong></p>
+                                                    <p class="mb-0">{{ rating_mapping[review.rating] }}</p>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <p class="me-2 mb-0"><strong>Текст:</strong></p>
+                                                    <p class="mb-0">{{ review.text }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="commentText">{{ review.review_text }}</p>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Отзывов пока нет.</p>
+                        {% endif %}
+
+                        {% if is_commented %}
+                            <button class="btn btn-secondary mt-3 w-100" disabled>Вы уже оставили рецензию</button>
+                        {% else %}
+                            <a href="{{ url_for('books.add_review', book_id=book.id) }}"
+                               class="btn btn-primary mt-3 w-100">Оставить рецензию</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- End of Comments Block -->
+            </div>
         </div>
     </div>
 {% endblock %}

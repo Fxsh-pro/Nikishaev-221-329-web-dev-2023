@@ -49,11 +49,13 @@ class S3Client:
             async with self.get_client() as client:
                 file_bytes = io.BytesIO(file_obj.read())
                 file_bytes.seek(0)
+                print("started sensing")
                 await client.put_object(
                     Bucket=self.bucket_name,
                     Key=filename,
                     Body=file_bytes,
                 )
+                print("stop sensing")
                 print(f"File {filename} uploaded to {self.bucket_name}")
         except Exception as e:
             print(f"Error uploading file: {e}")
